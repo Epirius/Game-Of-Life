@@ -20,6 +20,7 @@ impl State {
         }
     }
 
+
     fn update(&mut self) {
         let xs = 0..self.grid_size.0;
         let ys = 0..self.grid_size.1;
@@ -90,6 +91,7 @@ impl State {
     fn validate(&self, assumption_list: &Vec<((usize, usize), bool)>) -> bool {
         for ((x, y), assumed_state) in assumption_list {
             if self.grid[*x][*y] != *assumed_state {
+                println!("Validate failed at [{}, {}]. value was {} but we thought it was {}.", x, y, self.grid[*x][*y], *assumed_state);
                 return false;
             }
         }
@@ -124,9 +126,8 @@ mod state_testing {
         assert_eq!(1, state.find_live_neighbor_count((2, 2)));
     }
 
-
     #[test]
-    fn test_stills(){
+    fn test_stills() {
         let block: Vec<((usize, usize), bool)> = vec![
             ((0, 0), false),
             ((1, 0), false),
@@ -185,107 +186,131 @@ mod state_testing {
             ((5, 5), false),
         ];
 
-        [block, loaf]
-            .iter()
-            .for_each(|cell_list| {
-                let mut state = State::new((30, 30));
-                println!("{:?}", state.grid);
-                cell_list
-                    .iter()
-                    .filter(|(_, assumption)| *assumption)
-                    .for_each(|(cell, _)| state.flip_cell(*cell));
-        
-                for _ in 0..10 {
-                    state.update();
-                    assert!(state.validate(&cell_list));
-                }
-            })
+        [block, loaf].iter().for_each(|cell_list| {
+            let mut state = State::new((30, 30));
+            cell_list
+                .iter()
+                .filter(|(_, assumption)| *assumption)
+                .for_each(|(cell, _)| state.flip_cell(*cell));
 
+            for _ in 0..10 {
+                state.update();
+                assert!(state.validate(&cell_list));
+            }
+        })
     }
 
-
     #[test]
-    fn still_block() {
-        let mut state = State::new((4, 4));
-        let cells: Vec<((usize, usize), bool)> = vec![
+    fn test_oscillators() {
+        let blinker1: Vec<((usize, usize), bool)> = vec![
             ((0, 0), false),
             ((1, 0), false),
             ((2, 0), false),
             ((3, 0), false),
             ((0, 1), false),
-            ((1, 1), true),
-            ((2, 1), true),
+            ((1, 1), false),
+            ((2, 1), false),
             ((3, 1), false),
             ((0, 2), false),
             ((1, 2), true),
             ((2, 2), true),
-            ((3, 2), false),
+            ((3, 2), true),
             ((0, 3), false),
             ((1, 3), false),
             ((2, 3), false),
             ((3, 3), false),
         ];
-        cells
-            .iter()
-            .filter(|(_, assumption)| *assumption)
-            .for_each(|(cell, _)| state.flip_cell(*cell));
 
-        for _ in 0..10 {
-            state.update();
-            assert!(state.validate(&cells));
-        }
-    }
-
-    #[test]
-    fn still_loaf() {
-        let mut state = State::new((6, 6));
-        let cells: Vec<((usize, usize), bool)> = vec![
+        let blinker2: Vec<((usize, usize), bool)> = vec![
             ((0, 0), false),
-            ((0, 1), false),
-            ((0, 2), false),
-            ((0, 3), false),
-            ((0, 4), false),
-            ((0, 5), false),
             ((1, 0), false),
-            ((1, 1), false),
-            ((1, 2), false),
-            ((1, 3), true),
-            ((1, 4), false),
-            ((1, 5), false),
             ((2, 0), false),
-            ((2, 1), false),
-            ((2, 2), true),
-            ((2, 3), false),
-            ((2, 4), true),
-            ((2, 5), false),
             ((3, 0), false),
-            ((3, 1), true),
+            ((0, 1), false),
+            ((1, 1), false),
+            ((2, 1), true),
+            ((3, 1), false),
+            ((0, 2), false),
+            ((1, 2), false),
+            ((2, 2), true),
             ((3, 2), false),
+            ((0, 3), false),
+            ((1, 3), false),
+            ((2, 3), true),
             ((3, 3), false),
-            ((3, 4), true),
-            ((3, 5), false),
-            ((4, 0), false),
-            ((4, 1), false),
-            ((4, 2), true),
-            ((4, 3), true),
-            ((4, 4), false),
-            ((4, 5), false),
-            ((5, 0), false),
-            ((5, 1), false),
-            ((5, 2), false),
-            ((5, 3), false),
-            ((5, 4), false),
-            ((5, 5), false),
         ];
 
-        cells
-            .iter()
-            .filter(|(_, assumption)| *assumption)
-            .for_each(|(cell, _)| state.flip_cell(*cell));
+        let beacon1: Vec<((usize, usize), bool)> = vec![
+            ((0, 0), false),
+            ((1, 0), false),
+            ((2, 0), false),
+            ((3, 0), false),
+            ((4, 0), false),
+            ((0, 1), false),
+            ((1, 1), false),
+            ((2, 1), false),
+            ((3, 1), true),
+            ((4, 1), true),
+            ((0, 2), false),
+            ((1, 2), false),
+            ((2, 2), false),
+            ((3, 2), true),
+            ((4, 2), true),
+            ((0, 3), false),
+            ((1, 3), true),
+            ((2, 3), true),
+            ((3, 3), false),
+            ((4, 3), false),
+            ((0, 4), false),
+            ((1, 4), true),
+            ((2, 4), true),
+            ((3, 4), false),
+            ((4, 4), false),
+        ];
 
-        for _ in 0..10 {
-            state.update();
-            assert!(state.validate(&cells));
-        }
+        let beacon2: Vec<((usize, usize), bool)> = vec![
+            ((0, 0), false),
+            ((1, 0), false),
+            ((2, 0), false),
+            ((3, 0), false),
+            ((4, 0), false),
+            ((0, 1), false),
+            ((1, 1), false),
+            ((2, 1), false),
+            ((3, 1), true),
+            ((4, 1), true),
+            ((0, 2), false),
+            ((1, 2), false),
+            ((2, 2), false),
+            ((3, 2), false),
+            ((4, 2), true),
+            ((0, 3), false),
+            ((1, 3), true),
+            ((2, 3), false),
+            ((3, 3), false),
+            ((4, 3), false),
+            ((0, 4), false),
+            ((1, 4), true),
+            ((2, 4), true),
+            ((3, 4), false),
+            ((4, 4), false),
+        ];
+
+        [(blinker1, blinker2), (beacon1, beacon2)]
+            .iter()
+            .for_each(|(cell_list1, cell_list2)| {
+                let mut state = State::new((30, 30));
+                cell_list1
+                    .iter()
+                    .filter(|(_, assumption)| *assumption)
+                    .for_each(|(cell, _)| state.flip_cell(*cell));
+
+                for i in 0..10 {
+                    assert!(state.validate(&cell_list1));
+                    state.update();
+                    assert!(state.validate(&cell_list2));
+                    state.update();
+                }
+            })
     }
 }
