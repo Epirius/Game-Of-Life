@@ -8,8 +8,13 @@ const GRID_SIZE: (usize, usize) = (100, 100);
 
 #[macroquad::main("BasicShapes")]
 async fn main() {
+    let mut time_since_last_game_update = 0.0;
     let mut game = init(GRID_SIZE);
+    let mut time_since_last_fps_update = 0.0;
+    let mut fps_counter = 0;
     loop {
+        time_since_last_game_update += get_frame_time();
+        time_since_last_fps_update += get_frame_time();
         clear_background(Color {
             r: 0.07,
             g: 0.07,
@@ -17,11 +22,22 @@ async fn main() {
             a: 1.0,
         });
         draw_board(&game.grid, SQUARE_SIZE);
-        game.update();
+
+        if time_since_last_game_update >= 1.0 / game.fps as f32 {
+            game.update();
+            time_since_last_game_update = 0.0;
+        }
+
+        if time_since_last_fps_update >= 1.0 {
+            fps_counter = get_fps();
+            time_since_last_fps_update = 0.0;
+        }
+
         if (is_mouse_button_released(MouseButton::Left)){
             handle_mouse_click(&mut game, SQUARE_SIZE);
         }
         handle_key_pressed(&mut game);
+        draw_fps(&game, &fps_counter);
         next_frame().await
     }
 }
@@ -46,6 +62,13 @@ fn draw_board(grid: &Vec<Vec<bool>>, square_size: (f32, f32)) {
     }
 }
 
+fn draw_fps(game: &State, fps_counter: &i32) {
+    if game.running {
+        draw_rectangle(10.0, 10.0, 60.0, 50.0, BLACK);
+        draw_text(&format!("{}", fps_counter), 20.0, 40.0, 40.0, PURPLE);
+    }
+}
+
 fn handle_mouse_click(game: &mut State, square_size: (f32, f32)){
     let (x, y) = mouse_position();
     let x = (x / square_size.0).floor() as usize;
@@ -64,6 +87,15 @@ fn handle_key_pressed(game: &mut State){
          game.running = true;
          game.update();
          game.running = false;
+    }
+    if is_key_down(KeyCode::Up) {
+        game.fps = game.fps + 1;
+        println!("game fps: {}", game.fps);
+    }
+    if is_key_down(KeyCode::Down) && game.fps > 1 {
+        game.fps = game.fps - 1;
+
+        println!("game fps: {}", game.fps);
     }
 }
 
@@ -114,11 +146,5 @@ fn init(grid_size: (usize, usize)) -> State {
         .iter()
         .filter(|(_, assumption)| *assumption)
         .for_each(|(cell, _)| state.flip_cell(*cell));
-    /*
-    for _ in 0..20 {
-        state.print();
-        state.update();
-    }
-     */
     state
 }

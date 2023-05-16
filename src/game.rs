@@ -18,7 +18,7 @@ impl State {
     pub fn new(grid_size: (usize, usize)) -> Self {
         State {
             grid: vec![vec![false; grid_size.1]; grid_size.0],
-            fps: 1,
+            fps: 25,
             running: false,
             grid_size,
             round: 0,
