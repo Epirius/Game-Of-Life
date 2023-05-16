@@ -1,19 +1,15 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-
-
 use std::{
-    cell::RefCell,
-    collections::btree_map::Iter,
     io::{self, Write},
     ops::Range,
 };
 
 pub struct State {
-    grid: Vec<Vec<bool>>,
-    fps: u32,
-    running: bool,
+    pub grid: Vec<Vec<bool>>,
+    pub fps: u32,
+    pub running: bool,
     grid_size: (usize, usize),
     round: u32,
 }
@@ -23,7 +19,7 @@ impl State {
         State {
             grid: vec![vec![false; grid_size.1]; grid_size.0],
             fps: 1,
-            running: false,
+            running: true,
             grid_size,
             round: 0,
         }
@@ -134,8 +130,6 @@ where
     // takes in two ranges and returns all combinations of those ranges.
     ys.flat_map(move |y| xs.clone().map(move |x| (x, y)))
 }
-
-
 
 #[cfg(test)]
 mod state_testing {

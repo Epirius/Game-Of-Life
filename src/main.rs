@@ -1,11 +1,48 @@
 use crate::game::State;
-
-
 mod game;
 
-fn main() {
-    println!("Hello, world!");
+use macroquad::prelude::*;
 
+const SQUARE_SIZE: (f32, f32) = (20.0, 20.0);
+const GRID_SIZE: (usize, usize) = (300, 300);
+
+#[macroquad::main("BasicShapes")]
+async fn main() {
+    let mut game = init(GRID_SIZE);
+    loop {
+        clear_background(Color {
+            r: 0.07,
+            g: 0.07,
+            b: 0.07,
+            a: 1.0,
+        });
+        draw_board(&game.grid, SQUARE_SIZE);
+        game.update();
+        next_frame().await
+    }
+}
+
+fn draw_board(grid: &Vec<Vec<bool>>, square_size: (f32, f32)) {
+    for (y, line) in grid.iter().enumerate() {
+        let y = y as f32;
+        for (x, square) in line.iter().enumerate() {
+            let x = x as f32;
+            let color: Color = match square {
+                true => GRAY,
+                false => WHITE,
+            };
+            draw_rectangle(
+                square_size.0 * x,
+                square_size.1 * y,
+                square_size.0,
+                square_size.1,
+                color,
+            )
+        }
+    }
+}
+
+fn init(grid_size: (usize, usize)) -> State {
     let start: Vec<((usize, usize), bool)> = vec![
         ((0, 0), false),
         ((1, 0), false),
@@ -34,14 +71,16 @@ fn main() {
         ((4, 4), false),
     ];
 
-    let mut state = State::new((10, 10));
+    let mut state = State::new(grid_size);
     start
         .iter()
         .filter(|(_, assumption)| *assumption)
         .for_each(|(cell, _)| state.flip_cell(*cell));
-
+    /*
     for _ in 0..20 {
         state.print();
         state.update();
     }
+     */
+    state
 }
