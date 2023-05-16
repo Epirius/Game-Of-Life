@@ -19,7 +19,7 @@ impl State {
         State {
             grid: vec![vec![false; grid_size.1]; grid_size.0],
             fps: 1,
-            running: true,
+            running: false,
             grid_size,
             round: 0,
         }
@@ -42,6 +42,9 @@ impl State {
     }
 
     pub fn update(&mut self) {
+        if !self.running {
+            return ();
+        }
         self.round += 1;
         let xs = 0..self.grid_size.0;
         let ys = 0..self.grid_size.1;

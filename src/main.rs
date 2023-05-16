@@ -4,7 +4,7 @@ mod game;
 use macroquad::prelude::*;
 
 const SQUARE_SIZE: (f32, f32) = (20.0, 20.0);
-const GRID_SIZE: (usize, usize) = (300, 300);
+const GRID_SIZE: (usize, usize) = (100, 100);
 
 #[macroquad::main("BasicShapes")]
 async fn main() {
@@ -18,6 +18,12 @@ async fn main() {
         });
         draw_board(&game.grid, SQUARE_SIZE);
         game.update();
+        if (is_mouse_button_released(MouseButton::Left)){
+            handle_mouse_click(&mut game, SQUARE_SIZE);
+        }
+        if (is_key_released(KeyCode::Space)){
+            game.running = !game.running;
+        }
         next_frame().await
     }
 }
@@ -34,11 +40,21 @@ fn draw_board(grid: &Vec<Vec<bool>>, square_size: (f32, f32)) {
             draw_rectangle(
                 square_size.0 * x,
                 square_size.1 * y,
-                square_size.0,
-                square_size.1,
+                square_size.0 - 1.0,
+                square_size.1 - 1.0,
                 color,
             )
         }
+    }
+}
+
+fn handle_mouse_click(game: &mut State, square_size: (f32, f32)){
+    let (x, y) = mouse_position();
+    let x = (x / square_size.0).floor() as usize;
+    let y = (y / square_size.1).floor() as usize;
+
+    if !game.running {
+        game.flip_cell((y, x))
     }
 }
 
