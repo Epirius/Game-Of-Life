@@ -21,9 +21,7 @@ async fn main() {
         if (is_mouse_button_released(MouseButton::Left)){
             handle_mouse_click(&mut game, SQUARE_SIZE);
         }
-        if (is_key_released(KeyCode::Space)){
-            game.running = !game.running;
-        }
+        handle_key_pressed(&mut game);
         next_frame().await
     }
 }
@@ -58,33 +56,57 @@ fn handle_mouse_click(game: &mut State, square_size: (f32, f32)){
     }
 }
 
+fn handle_key_pressed(game: &mut State){
+    if is_key_released(KeyCode::Space) {
+        game.running = !game.running;
+    }
+    if is_key_released(KeyCode::Right) && !game.running {
+         game.running = true;
+         game.update();
+         game.running = false;
+    }
+}
+
 fn init(grid_size: (usize, usize)) -> State {
     let start: Vec<((usize, usize), bool)> = vec![
-        ((0, 0), false),
-        ((1, 0), false),
-        ((2, 0), false),
-        ((3, 0), false),
-        ((4, 0), false),
-        ((0, 1), false),
-        ((1, 1), true),
-        ((2, 1), false),
-        ((3, 1), false),
-        ((4, 1), false),
-        ((0, 2), false),
-        ((1, 2), false),
-        ((2, 2), true),
-        ((3, 2), true),
-        ((4, 2), false),
-        ((0, 3), false),
-        ((1, 3), true),
-        ((2, 3), true),
-        ((3, 3), false),
-        ((4, 3), false),
-        ((0, 4), false),
-        ((1, 4), false),
-        ((2, 4), false),
-        ((3, 4), false),
-        ((4, 4), false),
+        ((10, 1), true),
+        ((11, 1), true),
+        ((10, 2), true),
+        ((11, 2), true),
+        ((10, 11), true),
+        ((11, 11), true),
+        ((12, 11), true),
+        ((9, 12), true),
+        ((13, 12), true),
+        ((14, 13), true),
+        ((14, 14), true),
+        ((8, 13), true),
+        ((8, 14), true),
+        ((11, 15), true),
+        ((9, 16), true),
+        ((13, 16), true),
+        ((10, 17), true),
+        ((11, 17), true),
+        ((12, 17), true),
+        ((11, 18), true),
+        ((10, 21), true),
+        ((9, 21), true),
+        ((8, 21), true),
+        ((10, 22), true),
+        ((9, 22), true),
+        ((8, 22), true),
+        ((7, 23), true),
+        ((11, 23), true),
+        ((7, 25), true),
+        ((11, 25), true),
+        ((6, 25), true),
+        ((12, 25), true),
+
+
+        ((8, 35), true),
+        ((9, 35), true),
+        ((8, 36), true),
+        ((9, 36), true),
     ];
 
     let mut state = State::new(grid_size);
